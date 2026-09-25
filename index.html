@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#046A38">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="SQM Cost">
+  <link rel="apple-touch-icon" sizes="180x180" href="icon-180.png">
+  <link rel="manifest" href="manifest.json">
+  <title>SQM Cost App</title>
+  <style>
+    :root{--g:#046A38;--b:#6CC24A;--d:#215732;--s:#F2F8EF;--bd:#D7E4D7;--m:#667085;--t:#17231B;--p:#F7FAF7}
+    *{box-sizing:border-box} body{margin:0;padding:18px;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:var(--t);background:#fff}
+    .app{max-width:620px;margin:auto}.head{display:flex;align-items:center;gap:14px;padding:10px 0 20px;border-bottom:4px solid var(--g);margin-bottom:24px}
+    .logo{width:72px;height:72px;border-radius:18px;object-fit:cover}.brand{font-size:13px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--g)}
+    h1{font-size:27px;line-height:1.1;margin:3px 0 0;color:var(--d)}.label{font-size:15px;font-weight:750;color:var(--d);margin-bottom:8px}.section{margin-bottom:22px}
+    .grid{display:grid;gap:9px}.three{grid-template-columns:repeat(3,1fr)}button.choice{min-height:52px;border:1.5px solid var(--bd);border-radius:14px;background:#fff;font-size:16px;font-weight:750;color:var(--d)}
+    button.choice.active{border-color:var(--g);background:var(--s);color:var(--g);box-shadow:inset 0 0 0 1px var(--g)}
+    input{width:100%;min-height:56px;border:1.5px solid var(--bd);border-radius:14px;padding:0 16px;font-size:18px;color:var(--t);background:#fff;outline:none}
+    input:focus{border-color:var(--g);box-shadow:0 0 0 3px rgba(108,194,74,.16)}
+    .fx{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px}.card{background:var(--p);border:1px solid var(--bd);border-radius:14px;padding:15px}
+    .ft{font-size:13px;color:var(--m);margin-bottom:5px}.fv{font-size:21px;font-weight:800;color:var(--d)}
+    .result{margin-top:26px;padding:20px;background:linear-gradient(135deg,var(--g),var(--d));color:#fff;border-radius:18px}.rl{font-size:14px;font-weight:700;opacity:.85}
+    .landed{font-size:40px;font-weight:850;line-height:1.12;letter-spacing:-.02em}.unit{font-size:19px;font-weight:650;opacity:.82}
+    .breakdown{margin-top:22px}.row{display:flex;justify-content:space-between;gap:20px;padding:8px 0;font-size:16px}.row strong{white-space:nowrap}
+    .total{border-top:1px solid var(--bd);margin-top:5px;padding-top:15px;font-weight:800;color:var(--d)}.status{margin-top:17px;font-size:13px;color:var(--m);line-height:1.4}
+    .error{margin-top:10px;color:#B42318;font-size:14px;min-height:20px}.refresh{margin-top:12px;min-height:44px;border-radius:12px;border:1px solid var(--g);background:#fff;color:var(--g);padding:0 18px;font-size:14px;font-weight:750}
+    footer{text-align:center;margin:28px 0 8px;padding-top:18px;border-top:1px solid var(--bd);color:var(--m);font-size:12px}footer strong{color:var(--g)}
+    @media(max-width:420px){body{padding:14px}.logo{width:62px;height:62px;border-radius:15px}h1{font-size:24px}button.choice{font-size:14px;padding:0 5px}.landed{font-size:36px}}
+  </style>
+</head>
+<body>
+<div class="app">
+  <header class="head"><img class="logo" src="icon-180.png" alt="Morgancoat"><div><div class="brand">Morgancoat</div><h1>SQM Cost App</h1></div></header>
+  <div class="section"><div class="label">Currency</div><div class="grid three" id="currencyButtons">
+    <button class="choice active" data-currency="USD">USD</button><button class="choice" data-currency="EUR">EUR</button><button class="choice" data-currency="ZAR">ZAR</button>
+  </div></div>
+  <div class="section"><div class="label">Purchase basis</div><div class="grid three" id="basisButtons">
+    <button class="choice active" data-basis="tonne">Per tonne</button><button class="choice" data-basis="kg">Per kg</button><button class="choice" data-basis="m2">Per m²</button>
+  </div></div>
+  <div class="section"><div class="label">Supplier price</div><input id="supplierPrice" type="text" inputmode="decimal" autocomplete="off" placeholder="e.g. 1250,50 or 1250.50"></div>
+  <div class="section" id="gsmSection"><div class="label">GSM</div><input id="gsm" type="text" inputmode="decimal" autocomplete="off" placeholder="e.g. 80"></div>
+  <div class="fx"><div class="card"><div class="ft">Market FX</div><div class="fv" id="marketFx">Loading...</div></div><div class="card"><div class="ft">Costing FX</div><div class="fv" id="costingFx">Loading...</div></div></div>
+  <div class="result"><div class="rl">LANDED COST</div><span class="landed" id="landed">R 0.000</span><span class="unit">/ m²</span></div>
+  <div class="breakdown">
+    <div class="row"><span>Material cost</span><strong id="material">R 0.000</strong></div>
+    <div class="row"><span>Width loss</span><strong id="widthLoss">R 0.000</strong></div>
+    <div class="row"><span>Clearing</span><strong id="clearing">R 0.050</strong></div>
+    <div class="row total"><span>Total</span><strong id="total">R 0.000</strong></div>
+  </div>
+  <div class="status" id="status">Loading live settings...</div><div class="error" id="error"></div>
+  <button class="refresh" id="refresh" type="button">Refresh exchange rates</button>
+  <footer>Powered by <strong>Morgancoat</strong></footer>
+</div>
+<script>
+(()=>{
+const state={currency:'USD',basis:'tonne',rates:null},$=id=>document.getElementById(id);
+function num(v){let t=String(v||'').trim().replace(/\s+/g,'');if(!t)return NaN;const c=t.includes(','),d=t.includes('.');if(c&&d){if(t.lastIndexOf(',')>t.lastIndexOf('.'))t=t.replace(/\./g,'').replace(',','.');else t=t.replace(/,/g,'')}else if(c)t=t.replace(',','.');return Number(t.replace(/[^0-9.-]/g,''))}
+function money(v){return 'R '+(Number.isFinite(v)?v:0).toFixed(3)}
+function active(group,key,val){document.querySelectorAll('#'+group+' button').forEach(b=>b.classList.toggle('active',b.dataset[key]===val))}
+function rate(){if(state.currency==='ZAR')return{market:1,costing:1};if(!state.rates)return null;return state.currency==='USD'?{market:state.rates.usdMarket,costing:state.rates.usdCosting}:{market:state.rates.eurMarket,costing:state.rates.eurCosting}}
+function fx(){const r=rate();$('marketFx').textContent=r?Number(r.market).toFixed(4):'Loading...';$('costingFx').textContent=r?Number(r.costing).toFixed(4):'Loading...'}
+function render(m,w,c,l){$('material').textContent=money(m);$('widthLoss').textContent=money(w);$('clearing').textContent=money(c);$('landed').textContent=money(l);$('total').textContent=money(l)}
+function calc(){ $('error').textContent='';const p=num($('supplierPrice').value),g=num($('gsm').value),r=rate();fx();if(!r||!Number.isFinite(p)||p<=0){render(0,0,0,0);return}if(state.basis!=='m2'&&(!Number.isFinite(g)||g<=0)){$('error').textContent='Enter the material GSM.';render(0,0,0,0);return}
+const s=state.rates?.settings||{purchasedWidthMm:1020,usableWidthMm:1000,clearingPerM2:.05},wf=s.purchasedWidthMm/s.usableWidthMm;let m=0;if(state.basis==='tonne')m=(p*r.costing)/(1000000/g);if(state.basis==='kg')m=(p*r.costing)/(1000/g);if(state.basis==='m2')m=p*r.costing;const a=m*wf,w=a-m,l=a+s.clearingPerM2;render(m,w,s.clearingPerM2,l)}
+function load(){ $('refresh').disabled=true;$('error').textContent='';fetch('https://script.google.com/a/macros/morgancoat.com/s/AKfycbyXU5K85V3KfA8HoFMHO1TRVrJDi1xykEAmSH1y6QONXLvP2l-xKYhqURSlhIqwoD1-bA/exec?api=1',{cache:'no-store'}).then(r=>{if(!r.ok)throw new Error('Could not load exchange rates.');return r.json()}).then(x=>{state.rates=x;$('status').textContent=x.settings.purchasedWidthMm+' mm purchased → '+x.settings.usableWidthMm+' mm usable';$('refresh').disabled=false;calc()}).catch(e=>{$('error').textContent=e.message||'Could not load exchange rates.';$('refresh').disabled=false})}
+$('currencyButtons').onclick=e=>{const b=e.target.closest('button[data-currency]');if(!b)return;state.currency=b.dataset.currency;active('currencyButtons','currency',state.currency);calc()};
+$('basisButtons').onclick=e=>{const b=e.target.closest('button[data-basis]');if(!b)return;state.basis=b.dataset.basis;active('basisButtons','basis',state.basis);$('gsmSection').style.display=state.basis==='m2'?'none':'block';calc()};
+$('supplierPrice').oninput=calc;$('gsm').oninput=calc;$('refresh').onclick=load;load();
+})();
+</script>
+</body></html>
