@@ -1,0 +1,9 @@
+{
+  "name":"SQM Cost App",
+  "short_name":"SQM Cost",
+  "start_url":"./",
+  "display":"standalone",
+  "background_color":"#ffffff",
+  "theme_color":"#046A38",
+  "icons":[{"src":"icon-180.png","sizes":"180x180","type":"image/png"}]
+}
