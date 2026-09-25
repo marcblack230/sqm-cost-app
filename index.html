@@ -77,7 +77,7 @@ function load(force=false){
     }catch(e){}
   }
   const cb='sqmCostRates_'+Date.now();
-  const url='https://script.google.com/a/macros/morgancoat.com/s/AKfycbyXU5K85V3KfA8HoFMHO1TRVrJDi1xykEAmSH1y6QONXLvP2l-xKYhqURSlhIqwoD1-bA/exec?api=1'+(force?'&refresh=1':'')+'&callback='+cb;
+  const url='https://script.google.com/macros/s/AKfycbyXU5K85V3KfA8HoFMHO1TRVrJDi1xykEAmSH1y6QONXLvP2l-xKYhqURSlhIqwoD1-bA/exec?api=1'+(force?'&refresh=1':'')+'&callback='+cb;
   const script=document.createElement('script');
   const cleanup=()=>{try{delete window[cb]}catch(e){window[cb]=undefined}script.remove()};
   window[cb]=(x)=>{cleanup();state.rates=x;try{localStorage.setItem(CACHE_KEY,JSON.stringify(x))}catch(e){}useRates(x,'Live');$('refresh').disabled=false};
