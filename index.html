@@ -65,7 +65,15 @@ function fx(){const r=rate();$('marketFx').textContent=r?Number(r.market).toFixe
 function render(m,w,c,l){$('material').textContent=money(m);$('widthLoss').textContent=money(w);$('clearing').textContent=money(c);$('landed').textContent=money(l);$('total').textContent=money(l)}
 function calc(){ $('error').textContent='';const p=num($('supplierPrice').value),g=num($('gsm').value),r=rate();fx();if(!r||!Number.isFinite(p)||p<=0){render(0,0,0,0);return}if(state.basis!=='m2'&&(!Number.isFinite(g)||g<=0)){$('error').textContent='Enter the material GSM.';render(0,0,0,0);return}
 const s=state.rates?.settings||{purchasedWidthMm:1020,usableWidthMm:1000,clearingPerM2:.05},wf=s.purchasedWidthMm/s.usableWidthMm;let m=0;if(state.basis==='tonne')m=(p*r.costing)/(1000000/g);if(state.basis==='kg')m=(p*r.costing)/(1000/g);if(state.basis==='m2')m=p*r.costing;const a=m*wf,w=a-m,l=a+s.clearingPerM2;render(m,w,s.clearingPerM2,l)}
-function load(){ $('refresh').disabled=true;$('error').textContent='';fetch('https://script.google.com/a/macros/morgancoat.com/s/AKfycbyXU5K85V3KfA8HoFMHO1TRVrJDi1xykEAmSH1y6QONXLvP2l-xKYhqURSlhIqwoD1-bA/exec?api=1',{cache:'no-store'}).then(r=>{if(!r.ok)throw new Error('Could not load exchange rates.');return r.json()}).then(x=>{state.rates=x;$('status').textContent=x.settings.purchasedWidthMm+' mm purchased → '+x.settings.usableWidthMm+' mm usable';$('refresh').disabled=false;calc()}).catch(e=>{$('error').textContent=e.message||'Could not load exchange rates.';$('refresh').disabled=false})}
+function load(){ $('refresh').disabled=true;$('error').textContent='';
+  const cb='sqmCostRates_'+Date.now();
+  const url='https://script.google.com/a/macros/morgancoat.com/s/AKfycbyXU5K85V3KfA8HoFMHO1TRVrJDi1xykEAmSH1y6QONXLvP2l-xKYhqURSlhIqwoD1-bA/exec?api=1&callback='+cb;
+  const script=document.createElement('script');
+  const cleanup=()=>{try{delete window[cb]}catch(e){window[cb]=undefined}script.remove()};
+  window[cb]=(x)=>{cleanup();state.rates=x;$('status').textContent=x.settings.purchasedWidthMm+' mm purchased → '+x.settings.usableWidthMm+' mm usable';$('refresh').disabled=false;calc()};
+  script.onerror=()=>{cleanup();$('error').textContent='Could not load exchange rates.';$('refresh').disabled=false};
+  script.src=url;document.head.appendChild(script);
+}
 $('currencyButtons').onclick=e=>{const b=e.target.closest('button[data-currency]');if(!b)return;state.currency=b.dataset.currency;active('currencyButtons','currency',state.currency);calc()};
 $('basisButtons').onclick=e=>{const b=e.target.closest('button[data-basis]');if(!b)return;state.basis=b.dataset.basis;active('basisButtons','basis',state.basis);$('gsmSection').style.display=state.basis==='m2'?'none':'block';calc()};
 $('supplierPrice').oninput=calc;$('gsm').oninput=calc;$('refresh').onclick=load;load();
